@@ -1,0 +1,159 @@
+<Sysmon schemaversion="4.82">
+  <!-- Capture all hashes -->
+  <HashAlgorithms>*</HashAlgorithms>
+  <EventFiltering>
+
+	<!-- Event ID 1 -->
+	<RuleGroup groupRelation="or">
+		<ProcessCreate onmatch="include">
+			<ParentImage condition="image">msbuild.exe</ParentImage>
+			<ParentImage condition="contains any">msbuild.exe;charles.exe</ParentImage>
+			<Rule name="assystem" groupRelation="and">
+				<ParentUser condition="is">SYSTEM</ParentUser>
+			</Rule>
+		</ProcessCreate>
+	</RuleGroup>
+	
+	<!-- Event ID 2 -->
+	<RuleGroup groupRelation="or">
+		<FileCreateTime onmatch="include">
+			<Image condition="begin with">C:\Users\public</Image>
+		</FileCreateTime>
+	</RuleGroup>
+
+	<!-- Event ID 3 -->
+	<RuleGroup groupRelation="or">
+		<NetworkConnect onmatch="include">
+			<Image condition="image">Msbuild.exe</Image>
+			<Image condition="image">csc.exe</Image>
+			<User condition="is">SYSTEM</User>
+		</NetworkConnect>
+	</RuleGroup>
+	
+	<!-- Event ID 5 -->
+	<RuleGroup groupRelation="or">
+		<ProcessTerminate onmatch="include">
+			<Image condition="begin with">C:\Users\public</Image>
+			<Image condition="begin with">C:\Windows\temp</Image>
+			<Image condition="contains">\Local\Temp</Image>
+			<Image condition="contains">\Downloads</Image>
+		</ProcessTerminate>
+	</RuleGroup>
+	
+
+	<RuleGroup groupRelation="or">
+		<DriverLoad onmatch="exclude">
+			<Signature condition="contains any">microsoft;windows;intel;amd</Signature>
+		</DriverLoad>
+	</RuleGroup>
+	
+	<!-- Event ID 7 -->
+	<RuleGroup groupRelation="or">
+		<ImageLoad onmatch="include">
+			<ImageLoaded condition="contains">AppData\Local\assembly\</ImageLoaded>
+			<ImageLoaded condition="contains">Downloads</ImageLoaded>
+			<ImageLoaded condition="begin with">C:\Users\public</ImageLoaded>
+			<ImageLoaded condition="begin with">C:\Windows\temp</ImageLoaded>
+			<ImageLoaded condition="contains">\Local\Temp</ImageLoaded>
+		</ImageLoad>
+	</RuleGroup>
+	
+	<!-- Event ID 8 -->
+	<RuleGroup groupRelation="or">
+		<CreateRemoteThread onmatch="include">
+			<StartFunction condition="contains">LoadLibrary</StartFunction>
+			<StartFunction condition="contains">ReflectiveLoader</StartFunction>
+		</CreateRemoteThread>
+	</RuleGroup>
+	
+	<!-- Event ID 9 -->
+	<RuleGroup groupRelation="or">
+		<RawAccessRead onmatch="include" />
+	</RuleGroup>
+
+
+	<!-- Event ID 10 -->
+	<RuleGroup groupRelation="or">
+		<ProcessAccess onmatch="include">
+			<TargetImage condition="contains">lsass.exe</TargetImage>
+			<TargetImage condition="contains">chrome.exe</TargetImage>
+			<TargetImage condition="contains">msedge.exe</TargetImage>
+		</ProcessAccess>
+	</RuleGroup>
+
+	<!-- Event ID 11 -->
+	<RuleGroup groupRelation="or">
+		<FileCreate onmatch="include">
+			<TargetFilename condition="end with">.vbs</TargetFilename>
+			<TargetFilename condition="end with">.hta</TargetFilename>
+			<TargetFilename condition="end with">_bloodhound.zip</TargetFilename>
+			<Rule name="cookiestealing" groupRelation="or">
+				<TargetFilename condition="contains">Local State</TargetFilename>
+				<OriginalFileName condition="is not">msedge.exe</OriginalFileName>
+				<OriginalFileName condition="is not">chrome.exe</OriginalFileName>
+			</Rule>
+		</FileCreate>
+	</RuleGroup>
+	
+	<!-- Event ID 12-13-14 -->
+	<RuleGroup groupRelation="or">
+		<RegistryEvent onmatch="include">
+			<TargetObject condition="end with">PsExec\EulaAccepted</TargetObject>
+			<TargetObject condition="contains">Windows\CurrentVersion\Run</TargetObject>
+			<TargetObject condition="contains">AppInit_DLLs</TargetObject>
+		</RegistryEvent>
+	</RuleGroup>
+	
+	<!-- Event ID 15 -->
+	<RuleGroup groupRelation="or">
+		<FileCreateStreamHash onmatch="include">
+			<Image condition="contains">AppData\Local\assembly\</Image>
+			<Image condition="contains">Downloads</Image>
+			<Image condition="begin with">C:\Users\public</Image>
+			<Image condition="begin with">C:\Windows\temp</Image>
+			<Image condition="contains">\Local\Temp</Image>
+		</FileCreateStreamHash>
+	</RuleGroup>
+	
+	<!-- Event ID 17-18 -->
+	<RuleGroup groupRelation="or">
+		<PipeEvent onmatch="include">
+			<PipeName condition="contains">PSEXESVC</PipeName>
+			<PipeName condition="contains">powershell</PipeName>
+			<PipeName condition="contains">mojo</PipeName>			
+			<Rule name="fakemojo" groupRelation="and">
+				<PipeName condition="contains">mojo</PipeName>
+			</Rule>
+		</PipeEvent>
+	</RuleGroup>
+	
+	<!-- Event ID 19-20-21 -->
+	<RuleGroup groupRelation="or">
+		<WmiEvent onmatch="include">
+			<Rule name="wmiprocesscreate" groupRelation="and">
+			<Operation condition="is">Created</Operation>
+			<NameSpace condition="is">win32_process</NameSpace>
+		</WmiEvent>
+	</RuleGroup>
+	
+	<!-- Event ID 22 -->
+	<RuleGroup groupRelation="or">
+		<DnsQuery onmatch="include">
+			<QueryName condition="end with">.amazonaws.com</QueryName>
+			<!-- <QueryName condition="end with">.azureedge.net</QueryName> -->
+		</DnsQuery>
+	</RuleGroup>
+	
+	
+	<RuleGroup groupRelation="or">
+		<FileExecutableDetected onmatch="include">
+			<TargetImage condition="contains">AppData\Local\assembly\</TargetImage>
+			<TargetImage condition="contains">Downloads</TargetImage>
+			<TargetImage condition="begin with">C:\Users\public</TargetImage>
+			<TargetImage condition="begin with">C:\Windows\temp</TargetImage>
+			<TargetImage condition="contains">\Local\Temp</TargetImage>
+		</FileExecutableDetected>
+	</RuleGroup>
+
+  </EventFiltering>
+</Sysmon>
